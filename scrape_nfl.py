@@ -7,9 +7,24 @@ from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 import csv
 from datetime import datetime
+import argparse
+from argparse import OPTIONAL
 
-iWeek1 = int(input("Enter start week: "))
-iWeek2 = int(input("Enter end week: "))
+parser = argparse.ArgumentParser()
+parser.add_argument('--week1', type=int, help='positive integer values to get the from week')
+parser.add_argument('--week2', type=int, help='positive integer values to get the to week')
+
+args = parser.parse_args()
+
+if(args.week1):
+   iWeek1 = args.week1
+   iWeek2 = args.week1
+else:   
+   iWeek1 = int(input("Enter start week: "))
+   iWeek2 = int(input("Enter end week: "))
+
+if(args.week2):
+   iWeek2 = args.week2
 
 iWeek2 += 1
 
