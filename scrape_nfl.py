@@ -8,6 +8,12 @@ from webdriver_manager.chrome import ChromeDriverManager
 import csv
 from datetime import datetime
 
+iWeek1 = int(input("Enter start week: "))
+iWeek2 = int(input("Enter end week: "))
+
+iWeek2 += 1
+
+
 browser = webdriver.Chrome(ChromeDriverManager().install())
 
 from selenium.webdriver.chrome.options import Options
@@ -18,8 +24,8 @@ opts.headless=True
 with open('c:/users/michael/nlf_2020.csv', mode='w', newline='') as nfl_schedule:
    schedule_writer = csv.writer(nfl_schedule)
 
-   for i in range(1,18):
-      schedule_writer.writerow(["Woche",i])
+   for i in range(iWeek1,iWeek2):
+      schedule_writer.writerow(["Week",i])
       website = "https://www.nfl.com/schedules/2020/REG" + str(i)
       browser.get(website)
       gamedays = WebDriverWait(browser, 20).until(EC.visibility_of_all_elements_located((By.CLASS_NAME, "nfl-o-matchup-group")))
@@ -47,5 +53,6 @@ with open('c:/users/michael/nlf_2020.csv', mode='w', newline='') as nfl_schedule
                         schedule_writer.writerow([datetime_object,game_at.text,awayteam, matchup.text])              
                        
       browser.close
+      browser.quit()
 
 
