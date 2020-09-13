@@ -26,10 +26,10 @@ args = parser.parse_args()
 #check if arguments are available, ask for user input if not
 if(args.fromWeek):
    ifromWeek = args.fromWeek
-   ifromWeek = args.fromWeek
+   itoWeek = args.fromWeek
 else:   
    ifromWeek = int(input("Enter start week: "))
-   ifromWeek = int(input("Enter end week: "))
+   itoWeek = int(input("Enter end week: "))
 
 if(args.toWeek):
    itoWeek = args.toWeek
