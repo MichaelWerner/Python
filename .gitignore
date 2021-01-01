@@ -1,3 +1,4 @@
 build
 __pycache__/scrape_nfl.cpython-37.pyc
 *.spec
+.project
