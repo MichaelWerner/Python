@@ -21,8 +21,8 @@ import argparse
 
 #parse the arguments
 parser = argparse.ArgumentParser()
-parser.add_argument('-f','--fromWeek', type=int, help='positive integer values to get the from week')
-parser.add_argument('-t','--toWeek', type=int, help='positive integer values to get the to week')
+parser.add_argument('-f','--fromWeek', type=int, help='positive integer value to get the from week')
+parser.add_argument('-t','--toWeek', type=int, help='positive integer value to get the to week')
 
 args = parser.parse_args()
 
@@ -53,7 +53,12 @@ with open(csvFile, mode='w', newline='') as nfl_schedule:
 
    for i in range(ifromWeek,itoWeek):
       schedule_writer.writerow(["Week",i])
-      website = "https://www.nfl.com/schedules/2020/REG" + str(i)
+      
+      if(i <= 17):
+         website = "https://www.nfl.com/schedules/2020/REG" + str(i)
+      else:
+         website = "https://www.nfl.com/schedules/2020/POST" + str(i-17)
+         
       browser.get(website)
       
       #the different game days
