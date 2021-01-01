@@ -6,6 +6,9 @@ from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 
+#to get the user home dir
+from pathlib import Path
+
 #needed to write a csv file
 import csv
 
@@ -41,8 +44,11 @@ browser = webdriver.Chrome(ChromeDriverManager().install())
 opts = Options()
 opts.headless=True
 
+#get the home directory
+userHome = str(Path.home())
+csvFile = userHome + "/nlf_2020.csv"
 
-with open('c:/users/michael/nlf_2020.csv', mode='w', newline='') as nfl_schedule:
+with open(csvFile, mode='w', newline='') as nfl_schedule:
    schedule_writer = csv.writer(nfl_schedule)
 
    for i in range(ifromWeek,itoWeek):
