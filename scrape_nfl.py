@@ -1,3 +1,14 @@
+#Config file
+import scrape_nfl_config
+
+#assign config variables to local variables
+iWeeks = scrape_nfl_config.iWeeks
+iCurrentYear =  scrape_nfl_config.iCurrentYear
+
+
+iNextYear =  iCurrentYear + 1
+
+
 #needed to start a browser
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
@@ -17,7 +28,6 @@ from datetime import datetime
 
 #needed for command line arguments
 import argparse
-
 
 #parse the arguments
 parser = argparse.ArgumentParser()
@@ -46,7 +56,7 @@ opts.headless=True
 
 #get the home directory
 userHome = str(Path.home())
-csvFile = userHome + "/nlf_2020.csv"
+csvFile = userHome + "/nlf_" + str(iCurrentYear) + ".csv"
 
 with open(csvFile, mode='w', newline='') as nfl_schedule:
    schedule_writer = csv.writer(nfl_schedule)
@@ -54,10 +64,12 @@ with open(csvFile, mode='w', newline='') as nfl_schedule:
    for i in range(ifromWeek,itoWeek):
       schedule_writer.writerow(["Week",i])
       
-      if(i <= 17):
-         website = "https://www.nfl.com/schedules/2020/REG" + str(i)
+      if(i <= 18):
+         website = "https://www.nfl.com/schedules/" + str(iCurrentYear) + "/REG" + str(i)
       else:
-         website = "https://www.nfl.com/schedules/2020/POST" + str(i-17)
+         #for the post season this script is called with week 19, 20, and so on. The NFL start with 1 again
+         #so some basic math is needed
+         website = "https://www.nfl.com/schedules/" + str(iCurrentYear) + "/POST" + str(i-iWeeks)
          
       browser.get(website)
       
@@ -86,17 +98,19 @@ with open(csvFile, mode='w', newline='') as nfl_schedule:
                      if(k == 2):
                         try:
                            #transform something like THURSDAY, SEPTEMBER 10TH into a date object
+                           #I have to calculate the year because there is none on the website
+                           #Usually week 16 is still in the current year
                            if(i<17):
-                              cYear = ' 2020'
+                              cYear = ' ' + str(iCurrentYear)
                            else:
-                              cYear = ' 2021'   
+                              cYear = ' ' + str(iNextYear)   
                            tdatetime = datetime.strptime(game_day.text[:-2] + cYear, '%A, %B %d %Y')
                         except:
                            tdatetime = "not a date: " + game_day.text
                            
                         schedule_writer.writerow([tdatetime,game_at.text,awayteam, matchup.text])              
-                       
-      browser.close
-      browser.quit()
+                          
+browser.close
+browser.quit()
 
 
