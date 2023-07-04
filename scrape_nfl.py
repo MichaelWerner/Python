@@ -56,7 +56,7 @@ opts.headless=True
 
 #get the home directory
 userHome = str(Path.home())
-csvFile = userHome + "/nlf_" + str(iCurrentYear) + ".csv"
+csvFile = userHome + "/nfl_" + str(iCurrentYear) + ".csv"
 
 with open(csvFile, mode='w', newline='') as nfl_schedule:
    schedule_writer = csv.writer(nfl_schedule)
@@ -74,15 +74,17 @@ with open(csvFile, mode='w', newline='') as nfl_schedule:
       browser.get(website)
       
       #the different game days
-      gamedays = WebDriverWait(browser, 20).until(EC.visibility_of_all_elements_located((By.CLASS_NAME, "nfl-o-matchup-group")))
+      gamedays = WebDriverWait(browser, 60).until(EC.visibility_of_all_elements_located((By.CLASS_NAME, "nfl-o-matchup-group")))
       awayteam = ""
       
       for j in range(0,len(gamedays)):
          #the date
          game_on = gamedays[j].find_elements_by_class_name('d3-o-section-title')
-         
+      
          #the games on a gameday
          games = gamedays[j].find_elements_by_class_name('nfl-c-matchup-strip')
+         #games_unscheduled = gamedays[j].find_elements_by_class_name('nfl-c-matchup-strip--pre-game')
+         #games.extend(games_unscheduled)
          
          for game_day in game_on:
             for game in games:

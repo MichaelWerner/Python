@@ -1,2 +1,2 @@
 iWeeks = 18
-iCurrentYear = 2021
+iCurrentYear = 2022
