@@ -1,2 +1,2 @@
 iWeeks = 18
-iCurrentYear = 2022
+iCurrentYear = 2023

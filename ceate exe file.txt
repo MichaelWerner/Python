@@ -1,0 +1,15 @@
+Create .exe file
+
+a)	https://pyinstaller.org/en/stable/
+	pyinstaller --onefile scrape_nfl.py
+		
+	creates one big .exe file
+	currently (08/20/2023) does not work with selenium
+
+or 
+
+b) https://cx-freeze.readthedocs.io/en/stable/
+   cxfreeze -c scrape_nfl.py --target-dir dist
+   
+   creates a smaller .exe file
+   puts all needed libs in a separate folder

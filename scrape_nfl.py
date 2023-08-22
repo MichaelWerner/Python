@@ -14,11 +14,10 @@ from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.chrome.options import Options
+from chromedriver_py import binary_path
 
 #to get the user home dir
-from pathlib import Path
+import os
 
 #needed to write a csv file
 import csv
@@ -47,21 +46,18 @@ else:
 if(args.toWeek):
    itoWeek = args.toWeek
 
-itoWeek += 1
-
-#start the browser with options
-browser = webdriver.Chrome(ChromeDriverManager().install())
-opts = Options()
-opts.headless=True
+svc = webdriver.ChromeService(executable_path=binary_path)
+browser = webdriver.Chrome(service=svc)
 
 #get the home directory
-userHome = str(Path.home())
+userHome = os.path.expanduser('~')
 csvFile = userHome + "/nfl_" + str(iCurrentYear) + ".csv"
 
 with open(csvFile, mode='w', newline='') as nfl_schedule:
    schedule_writer = csv.writer(nfl_schedule)
 
-   for i in range(ifromWeek,itoWeek):
+   #Always add 1 because the end value is NOT included in the range
+   for i in range(ifromWeek,itoWeek + 1):
       schedule_writer.writerow(["Week",i])
       
       if(i <= 18):
@@ -75,44 +71,47 @@ with open(csvFile, mode='w', newline='') as nfl_schedule:
       
       #the different game days
       gamedays = WebDriverWait(browser, 60).until(EC.visibility_of_all_elements_located((By.CLASS_NAME, "nfl-o-matchup-group")))
-      awayteam = ""
+      tdatetime = ''
       
       for j in range(0,len(gamedays)):
-         #the date
-         game_on = gamedays[j].find_elements_by_class_name('d3-o-section-title')
+        #the date
+        all_game_days = gamedays[j].find_elements(By.CLASS_NAME, "d3-o-section-title")
       
-         #the games on a gameday
-         games = gamedays[j].find_elements_by_class_name('nfl-c-matchup-strip')
-         #games_unscheduled = gamedays[j].find_elements_by_class_name('nfl-c-matchup-strip--pre-game')
-         #games.extend(games_unscheduled)
+        #the games on a gameday
+        all_games_on_gameday = gamedays[j].find_elements(By.CLASS_NAME,'nfl-c-matchup-strip')
          
-         for game_day in game_on:
-            for game in games:
-               gametime = game.find_elements_by_class_name('nfl-c-matchup-strip__date-time')
-               teams = game.find_elements_by_class_name('nfl-c-matchup-strip__team-fullname')
-   
-               for game_at in gametime:
-                  k = 0  
-                  for matchup in teams:
-                     k += 1
-                     if(k == 1):
-                        awayteam = matchup.text
-                     if(k == 2):
-                        try:
-                           #transform something like THURSDAY, SEPTEMBER 10TH into a date object
-                           #I have to calculate the year because there is none on the website
-                           #Usually week 16 is still in the current year
-                           if(i<17):
-                              cYear = ' ' + str(iCurrentYear)
-                           else:
-                              cYear = ' ' + str(iNextYear)   
-                           tdatetime = datetime.strptime(game_day.text[:-2] + cYear, '%A, %B %d %Y')
-                        except:
-                           tdatetime = "not a date: " + game_day.text
-                           
-                        schedule_writer.writerow([tdatetime,game_at.text,awayteam, matchup.text])              
+        for game_day in all_game_days:
+            #breakpoint()
+
+            for game in all_games_on_gameday:
+                thisGame = game.find_element(By.CLASS_NAME,'nfl-c-matchup-strip__left-area')
+                GameNode = game.find_element(By.CLASS_NAME,'nfl-c-matchup-strip__game')
+                thisTeams = GameNode.find_elements(By.CLASS_NAME,'nfl-c-matchup-strip__team-fullname')
+                
+                if(all_game_days[0].text == 'GAMES NOT YET SCHEDULED'):
+                    thisTime = ''
+                    tdatetime = 'TBD'
+                else:    
+                    thisTime = game.find_element(By.CLASS_NAME,'nfl-c-matchup-strip__date-time').text
+                    try:
+                        #transform something like THURSDAY, SEPTEMBER 10TH into a date object
+                        cYear = ' ' + str(iCurrentYear)                            
+                        tdatetime = datetime.strptime(all_game_days[0].text[:-2] + cYear, '%A, %B %d %Y')
+
+                        #Adjust the year. The season starts in September of the current year and ends in
+                        #February of the following yeasr. Hence a month of 1 or 2 must be next year
+                        #I couldn't find a year on the website, that would be easy
+                        if(tdatetime.month < 3):
+                            tdatetime = tdatetime.replace(year = tdatetime.year + 1)
+                    except:
+                        tdatetime = "not a date: " + all_game_days[0].text
+                            
+                schedule_writer.writerow([tdatetime,thisTime,thisTeams[0].text, thisTeams[1].text])              
+
                           
 browser.close
 browser.quit()
+
+
 
 
